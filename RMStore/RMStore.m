@@ -56,13 +56,6 @@ NSString* const RMStoreNotificationTransactions = @"transactions";
 #define RMStoreLog(...)
 #endif
 
-typedef void (^RMSKPaymentTransactionFailureBlock)(SKPaymentTransaction *transaction, NSError *error);
-typedef void (^RMSKPaymentTransactionSuccessBlock)(SKPaymentTransaction *transaction);
-typedef void (^RMSKProductsRequestFailureBlock)(NSError *error);
-typedef void (^RMSKProductsRequestSuccessBlock)(NSArray *products, NSArray *invalidIdentifiers);
-typedef void (^RMStoreFailureBlock)(NSError *error);
-typedef void (^RMStoreSuccessBlock)();
-
 @implementation NSNotification(RMStore)
 
 - (float)rm_downloadProgress
@@ -188,16 +181,16 @@ typedef void (^RMStoreSuccessBlock)();
 }
 
 - (void)addPayment:(NSString*)productIdentifier
-           success:(void (^)(SKPaymentTransaction *transaction))successBlock
-           failure:(void (^)(SKPaymentTransaction *transaction, NSError *error))failureBlock
+           success:(RMSKPaymentTransactionSuccessBlock)successBlock
+           failure:(RMSKPaymentTransactionFailureBlock)failureBlock
 {
     [self addPayment:productIdentifier user:nil success:successBlock failure:failureBlock];
 }
 
 - (void)addPayment:(NSString*)productIdentifier
               user:(NSString*)userIdentifier
-           success:(void (^)(SKPaymentTransaction *transaction))successBlock
-           failure:(void (^)(SKPaymentTransaction *transaction, NSError *error))failureBlock
+           success:(RMSKPaymentTransactionSuccessBlock)successBlock
+           failure:(RMSKPaymentTransactionFailureBlock)failureBlock
 {
     SKProduct *product = [self productForIdentifier:productIdentifier];
     if (product == nil)
@@ -206,7 +199,7 @@ typedef void (^RMStoreSuccessBlock)();
         if (failureBlock != nil)
         {
             NSError *error = [NSError errorWithDomain:RMStoreErrorDomain code:RMStoreErrorCodeUnknownProductIdentifier userInfo:@{NSLocalizedDescriptionKey: NSLocalizedStringFromTable(@"Unknown product identifier", @"RMStore", @"Error description")}];
-            failureBlock(nil, error);
+            failureBlock(nil, error, ^{});
         }
         return;
     }
@@ -546,16 +539,19 @@ typedef void (^RMStoreSuccessBlock)();
     SKPayment *payment = transaction.payment;
 	NSString* productIdentifier = payment.productIdentifier;
     RMStoreLog(@"transaction failed with product %@ and error %@", productIdentifier, error.debugDescription);
-    
-    if (error.code != RMStoreErrorCodeUnableToCompleteVerification)
-    { // If we were unable to complete the verification we want StoreKit to keep reminding us of the transaction
-        [queue finishTransaction:transaction];
-    }
+
+    RMSKPaymentTransactionFinishBlock finishBlock = ^{
+        if (error.code != RMStoreErrorCodeUnableToCompleteVerification) { // If we were unable to complete the verification we want StoreKit to keep reminding us of the transaction
+            [queue finishTransaction:transaction];
+        }
+    };
     
     RMAddPaymentParameters *parameters = [self popAddPaymentParametersForIdentifier:productIdentifier];
     if (parameters.failureBlock != nil)
     {
-        parameters.failureBlock(transaction, error);
+        parameters.failureBlock(transaction, error, finishBlock);
+    } else {
+        finishBlock();
     }
     
     NSDictionary *extras = error ? @{RMStoreNotificationStoreError : error} : nil;
@@ -632,13 +628,19 @@ typedef void (^RMStoreSuccessBlock)();
 {
     SKPayment *payment = transaction.payment;
 	NSString* productIdentifier = payment.productIdentifier;
-    [queue finishTransaction:transaction];
-    [self.transactionPersistor persistTransaction:transaction];
+
+    __weak __typeof(self) weakSelf = self;
+    RMSKPaymentTransactionFinishBlock finishBlock = ^{
+        [queue finishTransaction:transaction];
+        [weakSelf.transactionPersistor persistTransaction:transaction];
+    };
     
     RMAddPaymentParameters *wrapper = [self popAddPaymentParametersForIdentifier:productIdentifier];
     if (wrapper.successBlock != nil)
     {
-        wrapper.successBlock(transaction);
+        wrapper.successBlock(transaction, finishBlock);
+    } else {
+        finishBlock();
     }
     
     [self postNotificationWithName:RMSKPaymentTransactionFinished transaction:transaction userInfoExtras:nil];

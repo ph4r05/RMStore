@@ -31,6 +31,14 @@ extern NSInteger const RMStoreErrorCodeDownloadCanceled;
 extern NSInteger const RMStoreErrorCodeUnknownProductIdentifier;
 extern NSInteger const RMStoreErrorCodeUnableToCompleteVerification;
 
+typedef void (^RMSKPaymentTransactionFinishBlock)();
+typedef void (^RMSKPaymentTransactionSuccessBlock)(SKPaymentTransaction *transaction, RMSKPaymentTransactionFinishBlock finishBlock);
+typedef void (^RMSKPaymentTransactionFailureBlock)(SKPaymentTransaction *transaction, NSError *error, RMSKPaymentTransactionFinishBlock finishBlock);
+typedef void (^RMSKProductsRequestFailureBlock)(NSError *error);
+typedef void (^RMSKProductsRequestSuccessBlock)(NSArray *products, NSArray *invalidIdentifiers);
+typedef void (^RMStoreFailureBlock)(NSError *error);
+typedef void (^RMStoreSuccessBlock)();
+
 /** A StoreKit wrapper that adds blocks and notifications, plus optional receipt verification and purchase management.
  */
 @interface RMStore : NSObject<SKPaymentTransactionObserver>
@@ -63,8 +71,8 @@ extern NSInteger const RMStoreErrorCodeUnableToCompleteVerification;
  @param failureBlock The block to be called if the payment fails or there isn't any product with the given identifier. Can be `nil`.
  */
 - (void)addPayment:(NSString*)productIdentifier
-           success:(void (^)(SKPaymentTransaction *transaction))successBlock
-           failure:(void (^)(SKPaymentTransaction *transaction, NSError *error))failureBlock;
+           success:(RMSKPaymentTransactionSuccessBlock)successBlock
+           failure:(RMSKPaymentTransactionFailureBlock)failureBlock;
 
 /** Request payment of the product with the given product identifier. `successBlock` will be called if the payment is successful, `failureBlock` if it isn't.
  @param productIdentifier The identifier of the product whose payment will be requested.
@@ -75,8 +83,8 @@ extern NSInteger const RMStoreErrorCodeUnableToCompleteVerification;
  */
 - (void)addPayment:(NSString*)productIdentifier
               user:(NSString*)userIdentifier
-           success:(void (^)(SKPaymentTransaction *transaction))successBlock
-           failure:(void (^)(SKPaymentTransaction *transaction, NSError *error))failureBlock __attribute__((availability(ios,introduced=7.0)));
+           success:(RMSKPaymentTransactionSuccessBlock)successBlock
+           failure:(RMSKPaymentTransactionFailureBlock)failureBlock __attribute__((availability(ios,introduced=7.0)));
 
 /** Request localized information about a set of products from the Apple App Store.
  @param identifiers The set of product identifiers for the products you wish to retrieve information of.
@@ -89,8 +97,8 @@ extern NSInteger const RMStoreErrorCodeUnableToCompleteVerification;
  @param failureBlock The block to be called if the products request fails. Can be `nil`.
  */
 - (void)requestProducts:(NSSet*)identifiers
-                success:(void (^)(NSArray *products, NSArray *invalidProductIdentifiers))successBlock
-                failure:(void (^)(NSError *error))failureBlock;
+                success:(RMSKProductsRequestSuccessBlock)successBlock
+                failure:(RMSKProductsRequestFailureBlock)failureBlock;
 
 /** Request to restore previously completed purchases.
  */
