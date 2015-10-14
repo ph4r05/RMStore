@@ -642,8 +642,15 @@ NSString* const RMStoreNotificationTransactions = @"transactions";
     if (wrapper.successBlock != nil)
     {
         wrapper.successBlock(transaction, finishBlock);
-    } else {
+    }
+    else if (wrapper != nil)
+    {
         finishBlock();
+    }
+    else
+    {
+        RMStoreLog(@"Unknown non-finished transaction for product %@, tsxId: %@",
+                transaction.payment.productIdentifier, transaction.transactionIdentifier);
     }
     
     [self postNotificationWithName:RMSKPaymentTransactionFinished transaction:transaction userInfoExtras:nil];
