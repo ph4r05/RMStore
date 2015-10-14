@@ -631,8 +631,9 @@ NSString* const RMStoreNotificationTransactions = @"transactions";
 
     __weak __typeof(self) weakSelf = self;
     RMSKPaymentTransactionFinishBlock finishBlock = ^{
-        [queue finishTransaction:transaction];
+        // First persist, then finish.
         [weakSelf.transactionPersistor persistTransaction:transaction];
+        [queue finishTransaction:transaction];
     };
     
     RMAddPaymentParameters *wrapper = [self popAddPaymentParametersForIdentifier:productIdentifier];
