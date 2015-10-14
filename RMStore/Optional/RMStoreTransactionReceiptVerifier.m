@@ -20,10 +20,12 @@
 
 #import "RMStoreTransactionReceiptVerifier.h"
 
-#ifdef DEBUG
+#ifndef RMStoreLog
+#if DEBUG
 #define RMStoreLog(...) NSLog(@"RMStore: %@", [NSString stringWithFormat:__VA_ARGS__]);
 #else
 #define RMStoreLog(...)
+#endif
 #endif
 
 @interface NSData(rm_base64)

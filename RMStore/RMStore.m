@@ -50,10 +50,12 @@ NSString* const RMStoreNotificationStoreReceipt = @"storeReceipt";
 NSString* const RMStoreNotificationTransaction = @"transaction";
 NSString* const RMStoreNotificationTransactions = @"transactions";
 
+#ifndef RMStoreLog
 #if DEBUG
 #define RMStoreLog(...) NSLog(@"RMStore: %@", [NSString stringWithFormat:__VA_ARGS__]);
 #else
 #define RMStoreLog(...)
+#endif
 #endif
 
 @implementation NSNotification(RMStore)
