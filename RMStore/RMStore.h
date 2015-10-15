@@ -32,8 +32,10 @@ extern NSInteger const RMStoreErrorCodeUnknownProductIdentifier;
 extern NSInteger const RMStoreErrorCodeUnableToCompleteVerification;
 
 typedef void (^RMSKPaymentTransactionFinishBlock)();
-typedef void (^RMSKPaymentTransactionSuccessBlock)(SKPaymentTransaction *transaction, RMSKPaymentTransactionFinishBlock finishBlock);
-typedef void (^RMSKPaymentTransactionFailureBlock)(SKPaymentTransaction *transaction, NSError *error, RMSKPaymentTransactionFinishBlock finishBlock);
+typedef void (^RMSKPaymentTransactionSuccessBlock)(SKPaymentTransaction *transaction);
+typedef void (^RMSKPaymentTransactionFailureBlock)(SKPaymentTransaction *transaction, NSError *error);
+typedef void (^RMSKPaymentTransactionSuccessFinishBlock)(SKPaymentTransaction *transaction, RMSKPaymentTransactionFinishBlock finishBlock);
+typedef void (^RMSKPaymentTransactionFailureFinishBlock)(SKPaymentTransaction *transaction, NSError *error, RMSKPaymentTransactionFinishBlock finishBlock);
 typedef void (^RMSKProductsRequestFailureBlock)(NSError *error);
 typedef void (^RMSKProductsRequestSuccessBlock)(NSArray *products, NSArray *invalidIdentifiers);
 typedef void (^RMStoreFailureBlock)(NSError *error);
@@ -85,6 +87,23 @@ typedef void (^RMStoreSuccessBlock)();
               user:(NSString*)userIdentifier
            success:(RMSKPaymentTransactionSuccessBlock)successBlock
            failure:(RMSKPaymentTransactionFailureBlock)failureBlock __attribute__((availability(ios,introduced=7.0)));
+
+/** Request payment of the product with the given product identifier. `successBlock` will be called if the payment is successful, `failureBlock` if it isn't.
+ * This extended API gives an user ability to finish the transaction when deems appropriate. E.g., user may want to
+ * upload transaction to a remote server and finish the transaction after the upload is finished.
+ * Keep in mind that unfinished transactions are not handled by RMStore after app starts as there are no records for them.
+ * User needs to register custom payment queue observer to catch unfinishd transactions after app started.
+ *
+ @param productIdentifier The identifier of the product whose payment will be requested.
+ @param userIdentifier An opaque identifier of the user’s account, if applicable. Can be `nil`.
+ @param successBlock The block to be called if the payment is sucessful. Can be `nil`.
+ @param failureBlock The block to be called if the payment fails or there isn't any product with the given identifier. Can be `nil`.
+ @see [SKPayment applicationUsername]
+ */
+- (void)addPayment:(NSString*)productIdentifier
+              user:(NSString*)userIdentifier
+           successFinish:(RMSKPaymentTransactionSuccessFinishBlock)successBlock
+           failureFinish:(RMSKPaymentTransactionFailureFinishBlock)failureBlock __attribute__((availability(ios,introduced=7.0)));
 
 /** Request localized information about a set of products from the Apple App Store.
  @param identifiers The set of product identifiers for the products you wish to retrieve information of.

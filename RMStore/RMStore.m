@@ -111,8 +111,8 @@ NSString* const RMStoreNotificationTransactions = @"transactions";
 
 @interface RMAddPaymentParameters : NSObject
 
-@property (nonatomic, strong) RMSKPaymentTransactionSuccessBlock successBlock;
-@property (nonatomic, strong) RMSKPaymentTransactionFailureBlock failureBlock;
+@property (nonatomic, strong) RMSKPaymentTransactionSuccessFinishBlock successBlock;
+@property (nonatomic, strong) RMSKPaymentTransactionFailureFinishBlock failureBlock;
 
 @end
 
@@ -193,6 +193,34 @@ NSString* const RMStoreNotificationTransactions = @"transactions";
               user:(NSString*)userIdentifier
            success:(RMSKPaymentTransactionSuccessBlock)successBlock
            failure:(RMSKPaymentTransactionFailureBlock)failureBlock
+{
+    // Using extended API with finish blocks.
+    // if success block is nil, successFinish block is also nil so finish block is called automatically after
+    // transaction finishes. Otherwise finish block is called right after success block.
+    RMSKPaymentTransactionSuccessFinishBlock successBlockEx = successBlock == nil ? nil :
+            ^(SKPaymentTransaction *transaction, RMSKPaymentTransactionFinishBlock finishBlock) {
+                successBlock(transaction);
+                if (finishBlock != nil){
+                    finishBlock();
+                }
+            };
+
+
+    RMSKPaymentTransactionFailureFinishBlock failureBlockEx = failureBlock == nil ? nil :
+            ^(SKPaymentTransaction *transaction, NSError *error, RMSKPaymentTransactionFinishBlock finishBlock) {
+                failureBlock(transaction, error);
+                if (finishBlock != nil){
+                    finishBlock();
+                }
+            };
+
+    return [self addPayment:productIdentifier user:userIdentifier successFinish:successBlockEx failureFinish:failureBlockEx];
+}
+
+- (void)addPayment:(NSString *)productIdentifier
+              user:(NSString *)userIdentifier
+     successFinish:(RMSKPaymentTransactionSuccessFinishBlock)successBlock
+     failureFinish:(RMSKPaymentTransactionFailureFinishBlock)failureBlock
 {
     SKProduct *product = [self productForIdentifier:productIdentifier];
     if (product == nil)
