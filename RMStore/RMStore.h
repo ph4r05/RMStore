@@ -31,6 +31,31 @@ extern NSInteger const RMStoreErrorCodeDownloadCanceled;
 extern NSInteger const RMStoreErrorCodeUnknownProductIdentifier;
 extern NSInteger const RMStoreErrorCodeUnableToCompleteVerification;
 
+extern NSString* const RMSKDownloadCanceled;
+extern NSString* const RMSKDownloadFailed;
+extern NSString* const RMSKDownloadFinished;
+extern NSString* const RMSKDownloadPaused;
+extern NSString* const RMSKDownloadUpdated;
+extern NSString* const RMSKPaymentTransactionDeferred;
+extern NSString* const RMSKPaymentTransactionFailed;
+extern NSString* const RMSKPaymentTransactionFinished;
+extern NSString* const RMSKProductsRequestFailed;
+extern NSString* const RMSKProductsRequestFinished;
+extern NSString* const RMSKRefreshReceiptFailed;
+extern NSString* const RMSKRefreshReceiptFinished;
+extern NSString* const RMSKRestoreTransactionsFailed;
+extern NSString* const RMSKRestoreTransactionsFinished;
+
+extern NSString* const RMStoreNotificationInvalidProductIdentifiers;
+extern NSString* const RMStoreNotificationDownloadProgress;
+extern NSString* const RMStoreNotificationProductIdentifier;
+extern NSString* const RMStoreNotificationProducts;
+extern NSString* const RMStoreNotificationStoreDownload;
+extern NSString* const RMStoreNotificationStoreError;
+extern NSString* const RMStoreNotificationStoreReceipt;
+extern NSString* const RMStoreNotificationTransaction;
+extern NSString* const RMStoreNotificationTransactions;
+
 typedef void (^RMSKPaymentTransactionFinishBlock)();
 typedef void (^RMSKPaymentTransactionSuccessBlock)(SKPaymentTransaction *transaction);
 typedef void (^RMSKPaymentTransactionFailureBlock)(SKPaymentTransaction *transaction, NSError *error);
@@ -210,6 +235,16 @@ typedef void (^RMStoreSuccessBlock)();
  @param observer The observer to remove.
  */
 - (void)removeStoreObserver:(id<RMStoreObserver>)observer;
+
+/** Enables user of the library to post notification using same logic as RMStore uses.
+ *
+ */
+- (void)postNotificationWithName:(NSString*)notificationName download:(SKDownload*)download userInfoExtras:(NSDictionary*)extras;
+
+/** Enables user of the library to post notification using same logic as RMStore uses.
+ *
+ */
+- (void)postNotificationWithName:(NSString*)notificationName transaction:(SKPaymentTransaction*)transaction userInfoExtras:(NSDictionary*)extras;
 
 @end
 
