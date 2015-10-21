@@ -23,6 +23,7 @@
 
 @protocol RMStoreContentDownloader;
 @protocol RMStoreReceiptVerifier;
+@protocol RMStoreTransactionRestorer;
 @protocol RMStoreTransactionPersistor;
 @protocol RMStoreObserver;
 
@@ -57,6 +58,7 @@ extern NSString* const RMStoreNotificationTransaction;
 extern NSString* const RMStoreNotificationTransactions;
 
 typedef void (^RMSKPaymentTransactionFinishBlock)();
+typedef void (^RMSKPaymentTransactionRestoreFinishSignalBlock)();
 typedef void (^RMSKPaymentTransactionSuccessBlock)(SKPaymentTransaction *transaction);
 typedef void (^RMSKPaymentTransactionFailureBlock)(SKPaymentTransaction *transaction, NSError *error);
 typedef void (^RMSKPaymentTransactionSuccessFinishBlock)(SKPaymentTransaction *transaction, RMSKPaymentTransactionFinishBlock finishBlock);
@@ -210,6 +212,11 @@ typedef void (^RMStoreSuccessBlock)();
  */
 @property (nonatomic, weak) id<RMStoreTransactionPersistor> transactionPersistor;
 
+/**
+ The transaction restorer. Used to implement custom logic for restoring transactions.
+ */
+@property (nonatomic, weak) id<RMStoreTransactionRestorer> transactionRestorer;
+
 
 #pragma mark Product management
 ///---------------------------------------------
@@ -268,6 +275,15 @@ typedef void (^RMStoreSuccessBlock)();
 @protocol RMStoreTransactionPersistor<NSObject>
 
 - (void)persistTransaction:(SKPaymentTransaction*)transaction;
+@optional
+
+/**
+ * Asynchronous transaction persistence with success and failure block.
+ * Transaction should not be finished when persisting fails.
+ */
+- (void)persistTransaction:(SKPaymentTransaction*)transaction
+                  success:(void (^)())successBlock
+                  failure:(void (^)(NSError *error))failureBlock;
 
 @end
 
@@ -282,6 +298,18 @@ typedef void (^RMStoreSuccessBlock)();
                   success:(void (^)())successBlock
                   failure:(void (^)(NSError *error))failureBlock;
 
+@end
+
+@protocol RMStoreTransactionRestorer <NSObject>
+
+/** User may specify custom transaction restorer object.
+ @param transaction The transaction to be restored.
+ @param finish Block to be called when restorer decides to finish the transaction.
+ @param finishInfo Block to be called when restorer decides to broadcast information about tsx finish so listeners are finished, not waiting for transaction.
+ */
+- (void)restoreTransaction:(SKPaymentTransaction*)transaction
+                    finish:(RMSKPaymentTransactionFinishBlock) finishBlock
+                finishInfo:(RMSKPaymentTransactionRestoreFinishSignalBlock) finishInfoBlock;
 @end
 
 @protocol RMStoreObserver<NSObject>

@@ -660,13 +660,18 @@ NSString* const RMStoreNotificationTransactions = @"transactions";
 	NSString* productIdentifier = payment.productIdentifier;
 
     __weak __typeof(self) weakSelf = self;
-    RMSKPaymentTransactionFinishBlock finishBlock = ^{
-        // First persist, then finish.
-        [weakSelf.transactionPersistor persistTransaction:transaction];
-        [queue finishTransaction:transaction];
-    };
-    
     RMAddPaymentParameters *wrapper = [self popAddPaymentParametersForIdentifier:productIdentifier];
+    const BOOL asyncPersistor = self.transactionPersistor != nil && [self.transactionPersistor respondsToSelector:@selector(persistTransaction:success:failure:)];
+
+    // If there is a persistor supporting asynchronous logic, call it first, provide simple finish block.
+    RMSKPaymentTransactionFinishBlock finishBlock = ^{
+        if (asyncPersistor) {
+            [weakSelf.transactionPersistor persistTransaction:transaction];
+        }
+        [queue finishTransaction:transaction];
+        [weakSelf postNotificationWithName:RMSKPaymentTransactionFinished transaction:transaction userInfoExtras:nil];
+    };
+
     if (wrapper.successBlock != nil)
     {
         wrapper.successBlock(transaction, finishBlock);
@@ -675,17 +680,23 @@ NSString* const RMStoreNotificationTransactions = @"transactions";
     {
         finishBlock();
     }
+    else if (transaction.transactionState == SKPaymentTransactionStateRestored && self.transactionRestorer == nil){
+        // Transaction has no wrapper, it is a restore transaction.
+        finishBlock();
+        [self notifyRestoreTransactionFinishedIfApplicableAfterTransaction:transaction];
+    }
+    else if (transaction.transactionState == SKPaymentTransactionStateRestored && self.transactionRestorer != nil){
+        // Transaction has no wrapper, it is a restore transaction, but with custom transaction restoration logic.
+        [self.transactionRestorer restoreTransaction:transaction
+                                              finish:finishBlock
+                                          finishInfo:^{
+                                              [weakSelf notifyRestoreTransactionFinishedIfApplicableAfterTransaction:transaction];
+                                          }];
+    }
     else
     {
         RMStoreLog(@"Unknown non-finished transaction for product %@, tsxId: %@",
                 transaction.payment.productIdentifier, transaction.transactionIdentifier);
-    }
-    
-    [self postNotificationWithName:RMSKPaymentTransactionFinished transaction:transaction userInfoExtras:nil];
-    
-    if (transaction.transactionState == SKPaymentTransactionStateRestored)
-    {
-        [self notifyRestoreTransactionFinishedIfApplicableAfterTransaction:transaction];
     }
 }
 
