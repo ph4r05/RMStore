@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3D9DBA6112547A20F2275E8B /* RMStorePedanticAppReceiptVerifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 3D9DBD03DACCC2A40A525238 /* RMStorePedanticAppReceiptVerifier.m */; };
+		3D9DBB3BA24D1480A2EA8028 /* RMStorePedanticAppReceiptVerifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 3D9DBD03DACCC2A40A525238 /* RMStorePedanticAppReceiptVerifier.m */; };
+		3D9DBEB9DA86F54D782A58DA /* RMStorePedanticAppReceiptVerifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 3D9DBD03DACCC2A40A525238 /* RMStorePedanticAppReceiptVerifier.m */; };
 		8700D1C117DCA548005C8F5D /* NSNotification+RMStoreTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8700D1C017DCA548005C8F5D /* NSNotification+RMStoreTests.m */; };
 		8700D1D717DCB011005C8F5D /* libOCMock.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8700D1D617DCB011005C8F5D /* libOCMock.a */; };
 		876046491812FB7500C9B78C /* RMStoreKeychainPersistence.m in Sources */ = {isa = PBXBuildFile; fileRef = 876046481812FB7500C9B78C /* RMStoreKeychainPersistence.m */; };
@@ -86,6 +89,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3D9DB8ECF0FF804BFA1FAABB /* RMStorePedanticAppReceiptVerifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMStorePedanticAppReceiptVerifier.h; sourceTree = "<group>"; };
+		3D9DBD03DACCC2A40A525238 /* RMStorePedanticAppReceiptVerifier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMStorePedanticAppReceiptVerifier.m; sourceTree = "<group>"; };
 		8700D1C017DCA548005C8F5D /* NSNotification+RMStoreTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSNotification+RMStoreTests.m"; sourceTree = "<group>"; };
 		8700D1CF17DCB011005C8F5D /* NSNotificationCenter+OCMAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSNotificationCenter+OCMAdditions.h"; sourceTree = "<group>"; };
 		8700D1D017DCB011005C8F5D /* OCMArg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMArg.h; sourceTree = "<group>"; };
@@ -248,6 +253,8 @@
 				8793E805180D512E005D7A66 /* RMStoreTransactionReceiptVerifier.m */,
 				87A2A3A7180E82BB00376773 /* RMStoreUserDefaultsPersistence.h */,
 				87A2A3A8180E82BB00376773 /* RMStoreUserDefaultsPersistence.m */,
+				3D9DB8ECF0FF804BFA1FAABB /* RMStorePedanticAppReceiptVerifier.h */,
+				3D9DBD03DACCC2A40A525238 /* RMStorePedanticAppReceiptVerifier.m */,
 			);
 			path = Optional;
 			sourceTree = "<group>";
@@ -486,6 +493,7 @@
 				8793E808180D512E005D7A66 /* RMAppReceipt.m in Sources */,
 				876631F9180EEBF40049B368 /* RMStoreTransaction.m in Sources */,
 				C9F0A43219A241C700811E80 /* GTMCodeCoverageApp.m in Sources */,
+				3D9DBA6112547A20F2275E8B /* RMStorePedanticAppReceiptVerifier.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -504,6 +512,7 @@
 				87A2A3A3180D817600376773 /* RMAppReceiptIAPTests.m in Sources */,
 				87A2A3AC180E8AF500376773 /* RMStoreUserDefaultsPersistenceTests.m in Sources */,
 				C9F0A43119A23EE000811E80 /* GTMCodeCoverageTestsXC.m in Sources */,
+				3D9DBB3BA24D1480A2EA8028 /* RMStorePedanticAppReceiptVerifier.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -520,6 +529,7 @@
 				8760465118131B4800C9B78C /* RMStoreTransactionReceiptVerifier.m in Sources */,
 				A0AF3DA917A80B2F00D2E836 /* RMStore.m in Sources */,
 				8793E80B180D5133005D7A66 /* RMAppReceipt.m in Sources */,
+				3D9DBEB9DA86F54D782A58DA /* RMStorePedanticAppReceiptVerifier.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
